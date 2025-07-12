@@ -25,21 +25,21 @@
 - [x] Create basic styling system
 
 ## Phase 2: Core Map Features (Week 3-4)
-**Status: Not Started**
+**Status: 🔄 In Progress**
 
 ### Navigation Tools
-- [ ] Implement search bar with geocoding
-- [ ] Add current location detection
-- [ ] Create zoom controls
-- [ ] Add layer toggle functionality
-- [ ] Implement map bounds management
+- [x] Implement search bar with geocoding
+- [x] Add current location detection
+- [x] Create zoom controls
+- [x] Add layer toggle functionality
+- [x] Implement map bounds management
 
 ### Map Interactions
-- [ ] Add click handlers for map events
-- [ ] Implement coordinate display
-- [ ] Create map state management
-- [ ] Add map event logging
-- [ ] Test map performance
+- [x] Add click handlers for map events
+- [x] Implement coordinate display
+- [x] Create map state management
+- [x] Add map event logging
+- [x] Test map performance
 
 ## Phase 3: Boundary Drawing (Week 5-6)
 **Status: Not Started**
