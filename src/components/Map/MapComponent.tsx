@@ -3,6 +3,8 @@ import { MapContainer, TileLayer, ZoomControl, useMap, Marker, Popup } from 'rea
 import 'leaflet/dist/leaflet.css';
 import SearchBar from './SearchBar';
 import BoundaryDrawer from '../BoundaryDrawer/BoundaryDrawer';
+import DataPoints from '../DataPoints';
+import type { DataPoint } from '../DataUpload';
 
 // Fix for default markers in React-Leaflet
 import L from 'leaflet';
@@ -30,15 +32,21 @@ interface MapComponentProps {
   center?: [number, number];
   zoom?: number;
   onBoundariesChange?: (boundaries: Boundary[]) => void;
+  dataPoints?: DataPoint[];
 }
 
-// Component to handle map view changes
-const MapController: React.FC<{ center: [number, number]; zoom: number }> = ({ center, zoom }) => {
+// Component to handle map view changes and store map reference
+const MapController: React.FC<{ 
+  center: [number, number]; 
+  zoom: number; 
+  onMapReady: (map: L.Map) => void;
+}> = ({ center, zoom, onMapReady }) => {
   const map = useMap();
   
   React.useEffect(() => {
     map.setView(center, zoom);
-  }, [center, zoom, map]);
+    onMapReady(map);
+  }, [center, zoom, map, onMapReady]);
   
   return null;
 };
@@ -46,12 +54,14 @@ const MapController: React.FC<{ center: [number, number]; zoom: number }> = ({ c
 const MapComponent: React.FC<MapComponentProps> = ({ 
   center: initialCenter = [20, 0], 
   zoom: initialZoom = 2,
-  onBoundariesChange
+  onBoundariesChange,
+  dataPoints = []
 }) => {
   const [center, setCenter] = useState<[number, number]>(initialCenter);
   const [zoom, setZoom] = useState(initialZoom);
   const [searchResults, setSearchResults] = useState<Array<{ lat: number; lng: number; name: string }>>([]);
   const [boundaries, setBoundaries] = useState<Boundary[]>([]);
+  const mapRef = useRef<L.Map | null>(null);
 
   const handleSearch = (query: string) => {
     // Simulate search results - in real implementation, this would call a geocoding API
@@ -115,13 +125,20 @@ const MapComponent: React.FC<MapComponentProps> = ({
           </Marker>
         ))}
         
-        <MapController center={center} zoom={zoom} />
+        <MapController 
+          center={center} 
+          zoom={zoom} 
+          onMapReady={(map) => { mapRef.current = map; }}
+        />
         
         {/* Boundary Drawing Component */}
         <BoundaryDrawer
           onBoundaryCreated={handleBoundaryCreated}
           onBoundaryDeleted={handleBoundaryDeleted}
         />
+        
+        {/* Data Points Component */}
+        <DataPoints dataPoints={dataPoints} map={mapRef.current} />
       </MapContainer>
       
       <SearchBar onSearch={handleSearch} onLocationSelect={handleLocationSelect} />

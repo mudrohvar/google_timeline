@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Map, Search, Upload, Settings } from 'lucide-react';
 import BoundaryList from '../BoundaryDrawer/BoundaryList';
+import DataUpload from '../DataUpload';
+import type { DataPoint } from '../DataUpload';
 
 interface Boundary {
   id: string;
@@ -13,12 +15,16 @@ interface AppLayoutProps {
   children: React.ReactNode;
   boundaries?: Boundary[];
   onBoundariesChange?: (boundaries: Boundary[]) => void;
+  dataPoints?: DataPoint[];
+  onDataPointsChange?: (dataPoints: DataPoint[]) => void;
 }
 
 const AppLayout: React.FC<AppLayoutProps> = ({ 
   children, 
   boundaries = [],
-  onBoundariesChange
+  onBoundariesChange,
+  dataPoints = [],
+  onDataPointsChange
 }) => {
   const handleDeleteBoundary = (boundaryId: string) => {
     const updatedBoundaries = boundaries.filter(b => b.id !== boundaryId);
@@ -39,6 +45,18 @@ const AppLayout: React.FC<AppLayoutProps> = ({
   const handleSelectBoundary = (boundary: Boundary) => {
     // TODO: Implement boundary selection (zoom to boundary, highlight, etc.)
     console.log('Selected boundary:', boundary);
+  };
+
+  const handleDataProcessed = (data: DataPoint[]) => {
+    if (onDataPointsChange) {
+      onDataPointsChange(data);
+    }
+  };
+
+  const handleClearData = () => {
+    if (onDataPointsChange) {
+      onDataPointsChange([]);
+    }
   };
 
   return (
@@ -75,6 +93,15 @@ const AppLayout: React.FC<AppLayoutProps> = ({
                   <span>Upload Data</span>
                 </button>
               </div>
+            </div>
+            
+            <div className="space-y-2">
+              <h2 className="text-sm font-medium text-gray-900">Data Upload</h2>
+              <DataUpload
+                onDataProcessed={handleDataProcessed}
+                onClearData={handleClearData}
+                hasData={dataPoints.length > 0}
+              />
             </div>
             
             <div className="space-y-2">
