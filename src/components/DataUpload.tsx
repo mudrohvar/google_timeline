@@ -160,8 +160,78 @@ const DataUpload: React.FC<DataUploadProps> = ({ onDataProcessed, onClearData, h
           ...feature.properties
         };
       });
+    } else if (jsonData.semanticSegments && Array.isArray(jsonData.semanticSegments)) {
+      // Google Timeline format
+      let idx = 0;
+      for (const segment of jsonData.semanticSegments) {
+        // timelinePath points
+        if (Array.isArray(segment.timelinePath)) {
+          for (const pathPoint of segment.timelinePath) {
+            const [latStr, lngStr] = pathPoint.point.replace('°', '').split(',').map(s => s.trim().replace('°', ''));
+            const lat = parseFloat(latStr);
+            const lng = parseFloat(lngStr);
+            if (!isNaN(lat) && !isNaN(lng)) {
+              data.push({
+                id: `timelinePath_${idx++}`,
+                latitude: lat,
+                longitude: lng,
+                title: 'Timeline Path',
+                timestamp: pathPoint.time,
+                ...pathPoint
+              });
+            }
+          }
+        }
+        // visit.topCandidate.placeLocation.latLng
+        if (segment.visit && segment.visit.topCandidate && segment.visit.topCandidate.placeLocation && segment.visit.topCandidate.placeLocation.latLng) {
+          const [latStr, lngStr] = segment.visit.topCandidate.placeLocation.latLng.replace('°', '').split(',').map(s => s.trim().replace('°', ''));
+          const lat = parseFloat(latStr);
+          const lng = parseFloat(lngStr);
+          if (!isNaN(lat) && !isNaN(lng)) {
+            data.push({
+              id: `visit_${idx++}`,
+              latitude: lat,
+              longitude: lng,
+              title: segment.visit.topCandidate.semanticType || 'Visit',
+              timestamp: segment.startTime,
+              ...segment.visit.topCandidate
+            });
+          }
+        }
+        // activity.start.latLng and activity.end.latLng
+        if (segment.activity && segment.activity.start && segment.activity.start.latLng) {
+          const [latStr, lngStr] = segment.activity.start.latLng.replace('°', '').split(',').map(s => s.trim().replace('°', ''));
+          const lat = parseFloat(latStr);
+          const lng = parseFloat(lngStr);
+          if (!isNaN(lat) && !isNaN(lng)) {
+            data.push({
+              id: `activity_start_${idx++}`,
+              latitude: lat,
+              longitude: lng,
+              title: 'Activity Start',
+              timestamp: segment.startTime,
+              ...segment.activity.start
+            });
+          }
+        }
+        if (segment.activity && segment.activity.end && segment.activity.end.latLng) {
+          const [latStr, lngStr] = segment.activity.end.latLng.replace('°', '').split(',').map(s => s.trim().replace('°', ''));
+          const lat = parseFloat(latStr);
+          const lng = parseFloat(lngStr);
+          if (!isNaN(lat) && !isNaN(lng)) {
+            data.push({
+              id: `activity_end_${idx++}`,
+              latitude: lat,
+              longitude: lng,
+              title: 'Activity End',
+              timestamp: segment.endTime,
+              ...segment.activity.end
+            });
+          }
+        }
+      }
     } else {
-      throw new Error('Invalid JSON format. Expected array of objects or GeoJSON.');
+      throw new Error('Invalid JSON format. Expected array of objects, GeoJSON, or Google Timeline format.');
     }
 
     // Filter out invalid coordinates
