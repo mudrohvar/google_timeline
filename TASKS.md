@@ -42,21 +42,21 @@
 - [x] Test map performance
 
 ## Phase 3: Boundary Drawing (Week 5-6)
-**Status: Not Started**
+**Status: 🔄 In Progress**
 
 ### Drawing Tools
-- [ ] Install and configure drawing libraries
-- [ ] Create polygon drawing interface
-- [ ] Implement drawing mode toggle
-- [ ] Add visual feedback during drawing
-- [ ] Create boundary styling
+- [x] Install and configure drawing libraries
+- [x] Create polygon drawing interface
+- [x] Implement drawing mode toggle
+- [x] Add visual feedback during drawing
+- [x] Create boundary styling
 
 ### Boundary Management
-- [ ] Implement boundary editing
-- [ ] Add boundary deletion
-- [ ] Create boundary list/sidebar
-- [ ] Add boundary naming/labeling
-- [ ] Implement boundary persistence
+- [x] Implement boundary editing
+- [x] Add boundary deletion
+- [x] Create boundary list/sidebar
+- [x] Add boundary naming/labeling
+- [x] Implement boundary persistence
 
 ## Phase 4: Data Upload & Processing (Week 7-8)
 **Status: Not Started**

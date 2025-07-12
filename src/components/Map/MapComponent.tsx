@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { MapContainer, TileLayer, ZoomControl, useMap, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import SearchBar from './SearchBar';
+import BoundaryDrawer from '../BoundaryDrawer/BoundaryDrawer';
 
 // Fix for default markers in React-Leaflet
 import L from 'leaflet';
@@ -17,9 +18,18 @@ let DefaultIcon = L.icon({
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
+interface Boundary {
+  id: string;
+  name: string;
+  coordinates: L.LatLng[];
+  color: string;
+  layer: L.Polygon;
+}
+
 interface MapComponentProps {
   center?: [number, number];
   zoom?: number;
+  onBoundariesChange?: (boundaries: Boundary[]) => void;
 }
 
 // Component to handle map view changes
@@ -35,11 +45,13 @@ const MapController: React.FC<{ center: [number, number]; zoom: number }> = ({ c
 
 const MapComponent: React.FC<MapComponentProps> = ({ 
   center: initialCenter = [20, 0], 
-  zoom: initialZoom = 2 
+  zoom: initialZoom = 2,
+  onBoundariesChange
 }) => {
   const [center, setCenter] = useState<[number, number]>(initialCenter);
   const [zoom, setZoom] = useState(initialZoom);
   const [searchResults, setSearchResults] = useState<Array<{ lat: number; lng: number; name: string }>>([]);
+  const [boundaries, setBoundaries] = useState<Boundary[]>([]);
 
   const handleSearch = (query: string) => {
     // Simulate search results - in real implementation, this would call a geocoding API
@@ -59,6 +71,20 @@ const MapComponent: React.FC<MapComponentProps> = ({
     setCenter([location.lat, location.lng]);
     setZoom(12);
     setSearchResults([location]);
+  };
+
+  const handleBoundaryCreated = (boundary: Boundary) => {
+    setBoundaries(prev => [...prev, boundary]);
+    if (onBoundariesChange) {
+      onBoundariesChange([...boundaries, boundary]);
+    }
+  };
+
+  const handleBoundaryDeleted = (boundaryId: string) => {
+    setBoundaries(prev => prev.filter(b => b.id !== boundaryId));
+    if (onBoundariesChange) {
+      onBoundariesChange(boundaries.filter(b => b.id !== boundaryId));
+    }
   };
 
   return (
@@ -90,6 +116,12 @@ const MapComponent: React.FC<MapComponentProps> = ({
         ))}
         
         <MapController center={center} zoom={zoom} />
+        
+        {/* Boundary Drawing Component */}
+        <BoundaryDrawer
+          onBoundaryCreated={handleBoundaryCreated}
+          onBoundaryDeleted={handleBoundaryDeleted}
+        />
       </MapContainer>
       
       <SearchBar onSearch={handleSearch} onLocationSelect={handleLocationSelect} />

@@ -1,11 +1,46 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Map, Search, Upload, Settings } from 'lucide-react';
+import BoundaryList from '../BoundaryDrawer/BoundaryList';
+
+interface Boundary {
+  id: string;
+  name: string;
+  coordinates: any[];
+  color: string;
+}
 
 interface AppLayoutProps {
   children: React.ReactNode;
+  boundaries?: Boundary[];
+  onBoundariesChange?: (boundaries: Boundary[]) => void;
 }
 
-const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
+const AppLayout: React.FC<AppLayoutProps> = ({ 
+  children, 
+  boundaries = [],
+  onBoundariesChange
+}) => {
+  const handleDeleteBoundary = (boundaryId: string) => {
+    const updatedBoundaries = boundaries.filter(b => b.id !== boundaryId);
+    if (onBoundariesChange) {
+      onBoundariesChange(updatedBoundaries);
+    }
+  };
+
+  const handleUpdateBoundaryName = (boundaryId: string, name: string) => {
+    const updatedBoundaries = boundaries.map(b => 
+      b.id === boundaryId ? { ...b, name } : b
+    );
+    if (onBoundariesChange) {
+      onBoundariesChange(updatedBoundaries);
+    }
+  };
+
+  const handleSelectBoundary = (boundary: Boundary) => {
+    // TODO: Implement boundary selection (zoom to boundary, highlight, etc.)
+    console.log('Selected boundary:', boundary);
+  };
+
   return (
     <div className="h-screen flex flex-col bg-gray-50">
       {/* Header */}
@@ -16,7 +51,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             <h1 className="text-xl font-bold text-gray-900">Google Timeline Map</h1>
           </div>
           <div className="flex items-center space-x-4">
-            <button className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+            <button className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors" title="Settings">
               <Settings className="h-5 w-5" />
             </button>
           </div>
@@ -44,9 +79,12 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             
             <div className="space-y-2">
               <h2 className="text-sm font-medium text-gray-900">Boundaries</h2>
-              <div className="text-sm text-gray-500">
-                No boundaries drawn yet
-              </div>
+              <BoundaryList
+                boundaries={boundaries}
+                onDeleteBoundary={handleDeleteBoundary}
+                onUpdateBoundaryName={handleUpdateBoundaryName}
+                onSelectBoundary={handleSelectBoundary}
+              />
             </div>
           </div>
         </aside>
