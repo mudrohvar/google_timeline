@@ -45,8 +45,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({
   };
 
   const handleSelectBoundary = (boundary: Boundary) => {
-    // TODO: Implement boundary selection (zoom to boundary, highlight, etc.)
-    console.log('Selected boundary:', boundary);
+    // (Boundary selection not implemented)
   };
 
   const handleDataProcessed = (data: DataPoint[]) => {

@@ -68,19 +68,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
   const [boundaries, setBoundaries] = useState<Boundary[]>([]);
   const mapRef = useRef<L.Map | null>(null);
 
-  const handleSearch = (query: string) => {
-    // Simulate search results - in real implementation, this would call a geocoding API
-    console.log('Searching for:', query);
-    // For now, just add a mock result
-    const mockResult = {
-      lat: 40.7128,
-      lng: -74.0060,
-      name: query
-    };
-    setSearchResults([mockResult]);
-    setCenter([mockResult.lat, mockResult.lng]);
-    setZoom(10);
-  };
+  // handleSearch is not used for real geocoding anymore; can be removed or left empty if required by props.
 
   const handleLocationSelect = (location: { lat: number; lng: number; name: string }) => {
     setCenter([location.lat, location.lng]);
@@ -157,7 +145,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
         />
       </MapContainer>
       
-      <SearchBar onSearch={handleSearch} onLocationSelect={handleLocationSelect} />
+      <SearchBar onSearch={() => {}} onLocationSelect={handleLocationSelect} />
 
       {/* Filter Panel Toggle Button (top right, below boundary tools) */}
       <div className="absolute top-40 right-4 z-[1000] flex flex-col items-end space-y-2">
