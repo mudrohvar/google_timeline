@@ -14,6 +14,14 @@ Object.defineProperty(window, 'FileReader', {
   value: vi.fn(() => mockFileReader),
 });
 
+// Mock File.text() method
+Object.defineProperty(File.prototype, 'text', {
+  writable: true,
+  value: vi.fn(function() {
+    return Promise.resolve(mockFileReader.result);
+  }),
+});
+
 describe('DataUpload', () => {
   const mockOnDataProcessed = vi.fn();
   const mockOnClearData = vi.fn();
@@ -100,7 +108,8 @@ describe('DataUpload', () => {
         longitude: -74.006,
         title: 'New York',
         description: 'Big Apple',
-        category: 'attraction'
+        category: 'attraction',
+        timestamp: undefined
       },
       {
         id: 'point_2',
@@ -108,7 +117,8 @@ describe('DataUpload', () => {
         longitude: -118.2437,
         title: 'Los Angeles',
         description: 'City of Angels',
-        category: 'attraction'
+        category: 'attraction',
+        timestamp: undefined
       }
     ]);
   });
@@ -323,10 +333,12 @@ invalid,invalid,Invalid Point`;
     
     if (dropZone) {
       fireEvent.dragOver(dropZone);
-      expect(dropZone).toHaveClass('border-blue-400', 'bg-blue-50');
+      expect(dropZone).toHaveClass('border-blue-400');
+      expect(dropZone).toHaveClass('bg-blue-50');
 
       fireEvent.dragLeave(dropZone);
-      expect(dropZone).not.toHaveClass('border-blue-400', 'bg-blue-50');
+      expect(dropZone).not.toHaveClass('border-blue-400');
+      expect(dropZone).not.toHaveClass('bg-blue-50');
     }
   });
 }); 

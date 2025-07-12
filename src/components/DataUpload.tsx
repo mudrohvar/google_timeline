@@ -9,6 +9,8 @@ export interface DataPoint {
   description?: string;
   timestamp?: string;
   category?: string;
+  visitCount?: number;
+  lastVisit?: string;
   [key: string]: any;
 }
 

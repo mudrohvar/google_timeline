@@ -5,6 +5,7 @@ import SearchBar from './SearchBar';
 import BoundaryDrawer from '../BoundaryDrawer/BoundaryDrawer';
 import DataPoints from '../DataPoints';
 import type { DataPoint } from '../DataUpload';
+import type { FilterOptions } from '../FilterPanel';
 
 // Fix for default markers in React-Leaflet
 import L from 'leaflet';
@@ -33,6 +34,7 @@ interface MapComponentProps {
   zoom?: number;
   onBoundariesChange?: (boundaries: Boundary[]) => void;
   dataPoints?: DataPoint[];
+  filters?: FilterOptions;
 }
 
 // Component to handle map view changes and store map reference
@@ -55,7 +57,8 @@ const MapComponent: React.FC<MapComponentProps> = ({
   center: initialCenter = [20, 0], 
   zoom: initialZoom = 2,
   onBoundariesChange,
-  dataPoints = []
+  dataPoints = [],
+  filters
 }) => {
   const [center, setCenter] = useState<[number, number]>(initialCenter);
   const [zoom, setZoom] = useState(initialZoom);
@@ -138,7 +141,15 @@ const MapComponent: React.FC<MapComponentProps> = ({
         />
         
         {/* Data Points Component */}
-        <DataPoints dataPoints={dataPoints} map={mapRef.current} />
+        <DataPoints 
+          dataPoints={dataPoints} 
+          map={mapRef.current}
+          showVisitFrequency={filters?.showVisitFrequency}
+          timeRange={filters?.timeRange}
+          minVisitCount={filters?.minVisitCount}
+          maxVisitCount={filters?.maxVisitCount}
+          categories={filters?.categories}
+        />
       </MapContainer>
       
       <SearchBar onSearch={handleSearch} onLocationSelect={handleLocationSelect} />
