@@ -146,7 +146,7 @@ const ExportPanel: React.FC<ExportPanelProps> = ({
     return (
       <button
         onClick={onToggle}
-        className="fixed bottom-4 right-4 z-[1001] bg-white p-3 rounded-lg shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+        className="fixed bottom-4 left-4 z-[1001] bg-white p-3 rounded-lg shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors"
         title="Export Data"
       >
         <Download className="h-5 w-5 text-gray-600" />
@@ -155,7 +155,7 @@ const ExportPanel: React.FC<ExportPanelProps> = ({
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-[1001] bg-white rounded-lg shadow-lg border border-gray-200 w-80">
+    <div className="fixed bottom-4 left-4 z-[1001] bg-white rounded-lg shadow-lg border border-gray-200 w-80">
       <div className="p-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">

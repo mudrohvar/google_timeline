@@ -61,15 +61,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   };
 
   if (!isOpen) {
-    return (
-      <button
-        onClick={onToggle}
-        className="fixed top-20 right-4 z-[1001] bg-white p-3 rounded-lg shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors"
-        title="Open Filters"
-      >
-        <Filter className="h-5 w-5 text-gray-600" />
-      </button>
-    );
+    return null;
   }
 
   return (

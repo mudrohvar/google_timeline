@@ -35,6 +35,7 @@ interface MapComponentProps {
   onBoundariesChange?: (boundaries: Boundary[]) => void;
   dataPoints?: DataPoint[];
   filters?: FilterOptions;
+  onToggleFilterPanel?: () => void;
 }
 
 // Component to handle map view changes and store map reference
@@ -58,7 +59,8 @@ const MapComponent: React.FC<MapComponentProps> = ({
   zoom: initialZoom = 2,
   onBoundariesChange,
   dataPoints = [],
-  filters
+  filters,
+  onToggleFilterPanel
 }) => {
   const [center, setCenter] = useState<[number, number]>(initialCenter);
   const [zoom, setZoom] = useState(initialZoom);
@@ -107,12 +109,15 @@ const MapComponent: React.FC<MapComponentProps> = ({
         zoom={zoom}
         style={{ height: '100%', width: '100%' }}
         zoomControl={false}
+        minZoom={3}
+        maxBounds={[[-85, -180], [85, 180]]}
+        maxBoundsViscosity={1.0}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <ZoomControl position="topright" />
+        <ZoomControl position="bottomright" />
         
         {/* Search results markers */}
         {searchResults.map((result, index) => (
@@ -153,6 +158,17 @@ const MapComponent: React.FC<MapComponentProps> = ({
       </MapContainer>
       
       <SearchBar onSearch={handleSearch} onLocationSelect={handleLocationSelect} />
+
+      {/* Filter Panel Toggle Button (top right, below boundary tools) */}
+      <div className="absolute top-40 right-4 z-[1000] flex flex-col items-end space-y-2">
+        <button
+          className="px-3 py-2 bg-white border border-gray-300 rounded-lg shadow hover:bg-gray-100 text-sm font-medium flex items-center space-x-2"
+          onClick={onToggleFilterPanel}
+        >
+          <span>Filter</span>
+          {/* You can add a filter icon here if desired */}
+        </button>
+      </div>
     </div>
   );
 };

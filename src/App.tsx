@@ -50,6 +50,7 @@ function App() {
         onBoundariesChange={handleBoundariesChange}
         dataPoints={dataPoints}
         filters={filters}
+        onToggleFilterPanel={() => setIsFilterPanelOpen(!isFilterPanelOpen)}
       />
       
       {/* Phase 5 Components */}

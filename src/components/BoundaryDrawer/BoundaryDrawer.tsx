@@ -37,7 +37,7 @@ const BoundaryDrawer: React.FC<BoundaryDrawerProps> = ({
 
     // Initialize draw control
     drawControlRef.current = new L.Control.Draw({
-      position: 'topleft',
+      position: 'topright', // Changed from 'topleft' to 'topright'
       draw: {
         polygon: {
           allowIntersection: false,
