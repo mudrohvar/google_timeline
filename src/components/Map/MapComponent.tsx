@@ -30,22 +30,6 @@ interface MapComponentProps {
   dataPoints?: DataPoint[];
 }
 
-// Component to handle map view changes and store map reference
-const MapController: React.FC<{ 
-  center: [number, number]; 
-  zoom: number; 
-  onMapReady: (map: L.Map) => void;
-}> = ({ center, zoom, onMapReady }) => {
-  const map = useMap();
-  
-  React.useEffect(() => {
-    map.setView(center, zoom);
-    onMapReady(map);
-  }, [center, zoom, map, onMapReady]);
-  
-  return null;
-};
-
 const MapComponent: React.FC<MapComponentProps> = ({ 
   center: initialCenter = [20, 0], 
   zoom: initialZoom = 2,
@@ -53,8 +37,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
 }) => {
   const [center, setCenter] = useState<[number, number]>(initialCenter);
   const [zoom, setZoom] = useState(initialZoom);
-  const [searchResults, setSearchResults] = useState<Array<{ lat: number; lng: number; name: string }>>([]);
-  const mapRef = useRef<L.Map | null>(null);
 
   return (
     <div className="w-full h-full relative">
@@ -66,6 +48,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
         minZoom={3}
         maxBounds={[[-85, -Infinity], [85, Infinity]]}
         maxBoundsViscosity={1.0}
+        worldCopyJump={true}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -73,32 +56,10 @@ const MapComponent: React.FC<MapComponentProps> = ({
         />
         <ZoomControl position="bottomright" />
         
-        {/* Search results markers */}
-        {searchResults.map((result, index) => (
-          <Marker key={index} position={[result.lat, result.lng]}>
-            <Popup>
-              <div>
-                <h3 className="font-medium">{result.name}</h3>
-                <p className="text-sm text-gray-600">
-                  {result.lat.toFixed(4)}, {result.lng.toFixed(4)}
-                </p>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
-        
-        <MapController 
-          center={center} 
-          zoom={zoom} 
-          onMapReady={(map) => { mapRef.current = map; }}
-        />
-        
-        
         
         {/* Data Points Component */}
         <DataPoints 
           dataPoints={dataPoints} 
-          map={mapRef.current}
         />
       </MapContainer>
       

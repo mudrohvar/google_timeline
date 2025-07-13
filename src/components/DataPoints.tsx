@@ -1,17 +1,17 @@
 import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet.markercluster';
+import { useMap } from 'react-leaflet';
 import type { DataPoint } from './DataUpload';
 
 interface DataPointsProps {
   dataPoints: DataPoint[];
-  map: L.Map | null;
 }
 
 const DataPoints: React.FC<DataPointsProps> = ({ 
-  dataPoints, 
-  map
+  dataPoints 
 }) => {
+  const map = useMap();
   const markersRef = useRef<L.Marker[]>([]);
   const clusterGroupRef = useRef<L.MarkerClusterGroup | null>(null);
 
@@ -29,11 +29,11 @@ const DataPoints: React.FC<DataPointsProps> = ({
 
     // Create marker cluster group
     clusterGroupRef.current = L.markerClusterGroup({
-      chunkedLoading: true,
       maxClusterRadius: 50,
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
       zoomToBoundsOnClick: true,
+      removeOutsideVisibleBounds: false, // Keep markers on wrapped map
       iconCreateFunction: (cluster) => {
         const count = cluster.getChildCount();
         let className = 'marker-cluster marker-cluster-';
@@ -54,27 +54,29 @@ const DataPoints: React.FC<DataPointsProps> = ({
       }
     });
 
-    // Create markers for each data point
+    // Create markers for each data point, duplicating for wrapped world
     dataPoints.forEach((point) => {
-      const marker = L.marker([point.latitude, point.longitude], {
-        icon: createCustomIcon(point.category, point)
-      });
+      [-360, 0, 360].forEach(offset => {
+        const marker = L.marker([point.latitude, point.longitude + offset], {
+          icon: createCustomIcon(point.category, point)
+        });
 
-      // Create popup content
-      const popupContent = createPopupContent(point);
-      marker.bindPopup(popupContent, {
-        maxWidth: 300,
-        className: 'custom-popup'
-      });
+        // Create popup content
+        const popupContent = createPopupContent(point);
+        marker.bindPopup(popupContent, {
+          maxWidth: 300,
+          className: 'custom-popup'
+        });
 
-      // Add click handler for marker
-      marker.on('click', () => {
-        // You can add custom click behavior here
-        console.log('Marker clicked:', point);
-      });
+        // Add click handler for marker
+        marker.on('click', () => {
+          // You can add custom click behavior here
+          console.log('Marker clicked:', point);
+        });
 
-      markersRef.current.push(marker);
-      clusterGroupRef.current!.addLayer(marker);
+        markersRef.current.push(marker);
+        clusterGroupRef.current!.addLayer(marker);
+      });
     });
 
     // Add cluster group to map
@@ -86,7 +88,16 @@ const DataPoints: React.FC<DataPointsProps> = ({
       map.fitBounds(group.getBounds().pad(0.1));
     }
 
+    const handleMoveEnd = () => {
+      if (clusterGroupRef.current) {
+        clusterGroupRef.current.refreshClusters();
+      }
+    };
+
+    map.on('moveend', handleMoveEnd);
+
     return () => {
+      map.off('moveend', handleMoveEnd);
       if (clusterGroupRef.current) {
         map.removeLayer(clusterGroupRef.current);
       }
