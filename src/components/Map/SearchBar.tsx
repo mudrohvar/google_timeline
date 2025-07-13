@@ -3,11 +3,10 @@ import debounce from 'lodash.debounce';
 import { Search, MapPin } from 'lucide-react';
 
 interface SearchBarProps {
-  onSearch: (query: string) => void;
   onLocationSelect?: (location: { lat: number; lng: number; name: string }) => void;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onLocationSelect }) => {
+const SearchBar: React.FC<SearchBarProps> = ({ onLocationSelect }) => {
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<any[]>([]);
@@ -32,18 +31,6 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onLocationSelect }) => 
     }
     setIsLoading(false);
   }, 600);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (query.trim()) {
-      setIsLoading(true);
-      onSearch(query.trim());
-      // Simulate geocoding - in real implementation, this would call a geocoding service
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 1000);
-    }
-  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
@@ -100,8 +87,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onLocationSelect }) => 
 
   return (
     <div className="absolute top-4 left-4 z-[1000] w-80">
-      <form onSubmit={handleSubmit} className="relative">
-        <div className="relative">
+      <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input
             ref={inputRef}
@@ -143,7 +129,6 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onLocationSelect }) => 
             </ul>
           )}
         </div>
-      </form>
       
       <button
         onClick={handleCurrentLocation}
@@ -157,4 +142,4 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onLocationSelect }) => 
   );
 };
 
-export default SearchBar; 
+export default SearchBar;
