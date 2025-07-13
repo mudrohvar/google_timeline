@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, ZoomControl, useMap, Marker, Popup } from 'rea
 import 'leaflet/dist/leaflet.css';
 
 
-import SearchBar from './SearchBar';
+
 
 import DataPoints from '../DataPoints';
 import type { DataPoint } from '../DataUpload';
@@ -56,12 +56,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
   const [searchResults, setSearchResults] = useState<Array<{ lat: number; lng: number; name: string }>>([]);
   const mapRef = useRef<L.Map | null>(null);
 
-  const handleLocationSelect = (location: { lat: number; lng: number; name: string }) => {
-    setCenter([location.lat, location.lng]);
-    setZoom(12);
-    setSearchResults([location]);
-  };
-
   return (
     <div className="w-full h-full relative">
       <MapContainer
@@ -70,7 +64,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
         style={{ height: '100%', width: '100%' }}
         zoomControl={false}
         minZoom={3}
-        maxBounds={[[-85, -180], [85, 180]]}
+        maxBounds={[[-85, -Infinity], [85, Infinity]]}
         maxBoundsViscosity={1.0}
       >
         <TileLayer
@@ -110,7 +104,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
       
       
 
-      <SearchBar onLocationSelect={handleLocationSelect} />
+      
 
       
     </div>
