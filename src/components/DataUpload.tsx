@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Upload, FileText, AlertCircle, CheckCircle, X } from 'lucide-react';
+import { Upload, FileText, AlertCircle, CheckCircle, Trash2 } from 'lucide-react';
 
 export interface DataPoint {
   id: string;
@@ -167,7 +167,7 @@ const DataUpload: React.FC<DataUploadProps> = ({ onDataProcessed, onClearData, h
         // timelinePath points
         if (Array.isArray(segment.timelinePath)) {
           for (const pathPoint of segment.timelinePath) {
-            const [latStr, lngStr] = pathPoint.point.replace('°', '').split(',').map(s => s.trim().replace('°', ''));
+            const [latStr, lngStr] = pathPoint.point.replace('°', '').split(',').map((s: string) => s.trim().replace('°', ''));
             const lat = parseFloat(latStr);
             const lng = parseFloat(lngStr);
             if (!isNaN(lat) && !isNaN(lng)) {
@@ -184,7 +184,7 @@ const DataUpload: React.FC<DataUploadProps> = ({ onDataProcessed, onClearData, h
         }
         // visit.topCandidate.placeLocation.latLng
         if (segment.visit && segment.visit.topCandidate && segment.visit.topCandidate.placeLocation && segment.visit.topCandidate.placeLocation.latLng) {
-          const [latStr, lngStr] = segment.visit.topCandidate.placeLocation.latLng.replace('°', '').split(',').map(s => s.trim().replace('°', ''));
+          const [latStr, lngStr] = segment.visit.topCandidate.placeLocation.latLng.replace('°', '').split(',').map((s: string) => s.trim().replace('°', ''));
           const lat = parseFloat(latStr);
           const lng = parseFloat(lngStr);
           if (!isNaN(lat) && !isNaN(lng)) {
@@ -200,7 +200,7 @@ const DataUpload: React.FC<DataUploadProps> = ({ onDataProcessed, onClearData, h
         }
         // activity.start.latLng and activity.end.latLng
         if (segment.activity && segment.activity.start && segment.activity.start.latLng) {
-          const [latStr, lngStr] = segment.activity.start.latLng.replace('°', '').split(',').map(s => s.trim().replace('°', ''));
+          const [latStr, lngStr] = segment.activity.start.latLng.replace('°', '').split(',').map((s: string) => s.trim().replace('°', ''));
           const lat = parseFloat(latStr);
           const lng = parseFloat(lngStr);
           if (!isNaN(lat) && !isNaN(lng)) {
@@ -215,7 +215,7 @@ const DataUpload: React.FC<DataUploadProps> = ({ onDataProcessed, onClearData, h
           }
         }
         if (segment.activity && segment.activity.end && segment.activity.end.latLng) {
-          const [latStr, lngStr] = segment.activity.end.latLng.replace('°', '').split(',').map(s => s.trim().replace('°', ''));
+          const [latStr, lngStr] = segment.activity.end.latLng.replace('°', '').split(',').map((s: string) => s.trim().replace('°', ''));
           const lat = parseFloat(latStr);
           const lng = parseFloat(lngStr);
           if (!isNaN(lat) && !isNaN(lng)) {
@@ -275,94 +275,113 @@ const DataUpload: React.FC<DataUploadProps> = ({ onDataProcessed, onClearData, h
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 w-64">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+    <div className="bg-gradient-to-br from-blue-50 via-white to-purple-50 rounded-xl shadow-lg border border-gray-100 p-4 w-64 mx-auto transition-all duration-300">
+      <div className="flex items-center gap-2 mb-2">
+        <div className="bg-blue-100 rounded-full p-1 flex items-center justify-center">
           <Upload className="h-5 w-5 text-blue-600" />
-          Import Timeline Data
-        </h3>
-        {hasData && (
-          <button
-            onClick={handleClearData}
-            className="flex items-center gap-1 text-sm text-red-600 hover:text-red-700"
-          >
-            <X className="h-3 w-3" />
-            Clear Data
-          </button>
-        )}
+        </div>
+        <h3 className="text-lg font-bold text-gray-900">Import Data</h3>
       </div>
-
+      <p className="text-xs text-gray-500 mb-2">CSV or JSON. Drag & drop or click.</p>
       <div
-        className={`border-2 border-dashed rounded-md p-4 text-center transition-colors shadow-md ${
-          isDragging
-            ? 'border-blue-400 bg-blue-50'
-            : uploadStatus === 'success'
-            ? 'border-green-400 bg-green-50'
-            : uploadStatus === 'error'
-            ? 'border-red-400 bg-red-50'
-            : 'border-gray-300 hover:border-gray-400'
-        }`}
+        className={`border-2 border-dashed rounded-lg p-3 text-center transition-all duration-200 shadow-sm relative cursor-pointer select-none
+          ${isDragging ? 'border-blue-400 bg-blue-50/70 scale-105' :
+            uploadStatus === 'success' ? 'border-green-400 bg-green-50/70' :
+            uploadStatus === 'error' ? 'border-red-400 bg-red-50/70' :
+            'border-gray-300 hover:border-blue-300 hover:bg-blue-50/40'}
+        `}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
+        onClick={() => uploadStatus === 'idle' && fileInputRef.current?.click()}
+        style={{ minHeight: '80px' }}
       >
-        <div className="flex flex-col items-center gap-3">
-          {getStatusIcon()}
-          
-          <div>
-            <p className="text-base font-medium text-gray-900">
-              {uploadStatus === 'processing' && 'Processing file...'}
-              {uploadStatus === 'success' && `Loaded ${processedData.length} points`}
-              {uploadStatus === 'error' && 'Upload failed'}
-              {uploadStatus === 'idle' && 'Upload your Google Timeline data.'}
-            </p>
-            <p className="text-xs text-gray-500 mt-1">
-              CSV or JSON
-            </p>
-          </div>
-
-          {uploadStatus === 'idle' && (
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="mt-3 px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
-            >
-              Choose File
-            </button>
+        <div className="flex flex-col items-center justify-center gap-1 min-h-[48px]">
+          {/* Only show status icon in the center, not in the success summary */}
+          {uploadStatus === 'processing' && (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 mb-1"></div>
+              <span className="text-xs text-blue-700">Processing...</span>
+            </>
           )}
-
-          {uploadStatus === 'error' && (
-            <p className="text-xs text-red-600 mt-1">{errorMessage}</p>
-          )}
-
           {uploadStatus === 'success' && (
-            <div className="text-xs text-green-600 mt-1">
-              <FileText className="h-3 w-3 inline mr-1" />
-              {fileInputRef.current?.files?.[0]?.name}
-            </div>
+            <>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-semibold mb-1">
+                <CheckCircle className="h-4 w-4" /> Uploaded
+              </span>
+              <span className="text-xs text-gray-700 truncate max-w-[120px]">{fileInputRef.current?.files?.[0]?.name}</span>
+              <button
+                onClick={handleClearData}
+                className="mt-1 px-2 py-0.5 bg-red-100 text-red-600 text-xs rounded hover:bg-red-200 transition-colors flex items-center gap-1"
+                aria-label="Clear data"
+                title="Clear data"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </>
+          )}
+          {uploadStatus === 'error' && (
+            <>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-xs font-semibold mb-1">
+                <AlertCircle className="h-4 w-4" /> Error
+              </span>
+              <span className="text-xs text-red-600">{errorMessage}</span>
+              <button
+                onClick={handleClearData}
+                className="mt-1 px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded hover:bg-gray-200 transition-colors flex items-center gap-1"
+                aria-label="Try again"
+                title="Try again"
+              >
+                <Upload className="h-4 w-4" />
+              </button>
+            </>
+          )}
+          {uploadStatus === 'idle' && (
+            <>
+              <button
+                onClick={e => { e.stopPropagation(); fileInputRef.current?.click(); }}
+                className="px-3 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-bold rounded-md shadow hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
+              >
+                Choose File
+              </button>
+            </>
           )}
         </div>
-      </div>
-
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".csv,.json"
-        onChange={handleFileSelect}
-        className="hidden"
-      />
-
-      {uploadStatus === 'success' && processedData.length > 0 && (
-        <div className="mt-3 p-2 bg-gray-50 rounded-md">
-          <h4 className="text-sm font-medium text-gray-900 mb-1">Summary</h4>
-          <div className="text-xs text-gray-600 space-y-0.5">
-            <p>Points: {processedData.length}</p>
-            <p>Lat: {Math.min(...processedData.map(p => p.latitude)).toFixed(4)} to {Math.max(...processedData.map(p => p.latitude)).toFixed(4)}</p>
-            <p>Lon: {Math.min(...processedData.map(p => p.longitude)).toFixed(4)} to {Math.max(...processedData.map(p => p.longitude)).toFixed(4)}</p>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".csv,.json"
+          onChange={handleFileSelect}
+          className="hidden"
+        />
+        {uploadStatus === 'success' && processedData.length > 0 && (
+          <div className="mt-2 p-2 bg-gray-50 rounded border border-gray-200 shadow-inner">
+            <div className="flex flex-col gap-1 text-xs text-gray-700">
+              <div className="flex justify-between">
+                <span className="font-medium">Points:</span>
+                <span className="font-bold text-gray-900">{processedData.length}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium">Lat:</span>
+                <span className="font-mono">{Math.min(...processedData.map(p => p.latitude)).toFixed(4)} to {Math.max(...processedData.map(p => p.latitude)).toFixed(4)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium">Lon:</span>
+                <span className="font-mono">{Math.min(...processedData.map(p => p.longitude)).toFixed(4)} to {Math.max(...processedData.map(p => p.longitude)).toFixed(4)}</span>
+              </div>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
+      <style>{`
+        @keyframes progressBar {
+          0% { width: 0%; }
+          100% { width: 60%; }
+        }
+      `}</style>
     </div>
   );
 };
 
-export default DataUpload; 
+export default DataUpload;
+
