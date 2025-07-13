@@ -275,9 +275,12 @@ const DataUpload: React.FC<DataUploadProps> = ({ onDataProcessed, onClearData, h
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Data Upload</h3>
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 w-64">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <Upload className="h-5 w-5 text-blue-600" />
+          Import Timeline Data
+        </h3>
         {hasData && (
           <button
             onClick={handleClearData}
@@ -290,7 +293,7 @@ const DataUpload: React.FC<DataUploadProps> = ({ onDataProcessed, onClearData, h
       </div>
 
       <div
-        className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+        className={`border-2 border-dashed rounded-md p-4 text-center transition-colors shadow-md ${
           isDragging
             ? 'border-blue-400 bg-blue-50'
             : uploadStatus === 'success'
@@ -307,32 +310,32 @@ const DataUpload: React.FC<DataUploadProps> = ({ onDataProcessed, onClearData, h
           {getStatusIcon()}
           
           <div>
-            <p className="text-sm font-medium text-gray-900">
+            <p className="text-base font-medium text-gray-900">
               {uploadStatus === 'processing' && 'Processing file...'}
-              {uploadStatus === 'success' && `Successfully loaded ${processedData.length} data points`}
+              {uploadStatus === 'success' && `Loaded ${processedData.length} points`}
               {uploadStatus === 'error' && 'Upload failed'}
-              {uploadStatus === 'idle' && 'Drop your file here or click to browse'}
+              {uploadStatus === 'idle' && 'Upload your Google Timeline data.'}
             </p>
             <p className="text-xs text-gray-500 mt-1">
-              Supports CSV and JSON files
+              CSV or JSON
             </p>
           </div>
 
           {uploadStatus === 'idle' && (
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
+              className="mt-3 px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
             >
               Choose File
             </button>
           )}
 
           {uploadStatus === 'error' && (
-            <p className="text-xs text-red-600 mt-2">{errorMessage}</p>
+            <p className="text-xs text-red-600 mt-1">{errorMessage}</p>
           )}
 
           {uploadStatus === 'success' && (
-            <div className="text-xs text-green-600 mt-2">
+            <div className="text-xs text-green-600 mt-1">
               <FileText className="h-3 w-3 inline mr-1" />
               {fileInputRef.current?.files?.[0]?.name}
             </div>
@@ -349,12 +352,12 @@ const DataUpload: React.FC<DataUploadProps> = ({ onDataProcessed, onClearData, h
       />
 
       {uploadStatus === 'success' && processedData.length > 0 && (
-        <div className="mt-4 p-3 bg-gray-50 rounded-md">
-          <h4 className="text-sm font-medium text-gray-900 mb-2">Data Preview</h4>
-          <div className="text-xs text-gray-600 space-y-1">
-            <p>Total points: {processedData.length}</p>
-            <p>Latitude range: {Math.min(...processedData.map(p => p.latitude)).toFixed(4)} to {Math.max(...processedData.map(p => p.latitude)).toFixed(4)}</p>
-            <p>Longitude range: {Math.min(...processedData.map(p => p.longitude)).toFixed(4)} to {Math.max(...processedData.map(p => p.longitude)).toFixed(4)}</p>
+        <div className="mt-3 p-2 bg-gray-50 rounded-md">
+          <h4 className="text-sm font-medium text-gray-900 mb-1">Summary</h4>
+          <div className="text-xs text-gray-600 space-y-0.5">
+            <p>Points: {processedData.length}</p>
+            <p>Lat: {Math.min(...processedData.map(p => p.latitude)).toFixed(4)} to {Math.max(...processedData.map(p => p.latitude)).toFixed(4)}</p>
+            <p>Lon: {Math.min(...processedData.map(p => p.longitude)).toFixed(4)} to {Math.max(...processedData.map(p => p.longitude)).toFixed(4)}</p>
           </div>
         </div>
       )}

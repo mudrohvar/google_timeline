@@ -1,0 +1,1 @@
+feat: Enable infinite horizontal map scrolling and remove search bar.

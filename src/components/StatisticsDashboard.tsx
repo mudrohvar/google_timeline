@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { BarChart3, MapPin, Calendar, TrendingUp, Users, Clock, X } from 'lucide-react';
 import type { DataPoint } from './DataUpload';
 
@@ -28,61 +28,60 @@ const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({
     return null;
   }
 
-  // Calculate statistics
-  const totalPoints = dataPoints.length;
-  const totalVisits = dataPoints.reduce((sum, point) => sum + (point.visitCount || 1), 0);
-  const uniqueCategories = [...new Set(dataPoints.map(p => p.category).filter(Boolean))];
-  const averageVisitsPerPoint = totalVisits / totalPoints;
+  const { totalPoints, totalVisits, uniqueCategories, averageVisitsPerPoint, categoryStats, timeStats, mostVisited, recentVisits } = useMemo(() => {
+    const totalPoints = dataPoints.length;
+    const totalVisits = dataPoints.reduce((sum, point) => sum + (point.visitCount || 1), 0);
+    const uniqueCategories = [...new Set(dataPoints.map(p => p.category).filter(Boolean))];
+    const averageVisitsPerPoint = totalVisits / totalPoints;
 
-  // Category statistics
-  const categoryStats: CategoryStats[] = uniqueCategories.map(category => {
-    const categoryPoints = dataPoints.filter(p => p.category === category);
-    const categoryVisitCount = categoryPoints.reduce((sum, p) => sum + (p.visitCount || 1), 0);
-    return {
-      category: category || 'Unknown',
-      count: categoryPoints.length,
-      visitCount: categoryVisitCount
-    };
-  }).sort((a, b) => b.count - a.count);
+    const categoryStats: CategoryStats[] = uniqueCategories.map(category => {
+      const categoryPoints = dataPoints.filter(p => p.category === category);
+      const categoryVisitCount = categoryPoints.reduce((sum, p) => sum + (p.visitCount || 1), 0);
+      return {
+        category: category || 'Unknown',
+        count: categoryPoints.length,
+        visitCount: categoryVisitCount
+      };
+    }).sort((a, b) => b.count - a.count);
 
-  // Time-based statistics (by month)
-  const timeStats: TimeStats[] = dataPoints
-    .filter(p => p.timestamp)
-    .reduce((acc, point) => {
-      const date = new Date(point.timestamp!);
-      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-      const monthName = date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
-      
-      const existing = acc.find(item => item.month === monthName);
-      if (existing) {
-        existing.count += 1;
-      } else {
-        acc.push({ month: monthName, count: 1 });
-      }
-      return acc;
-    }, [] as TimeStats[])
-    .sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime());
+    const timeStats: TimeStats[] = dataPoints
+      .filter(p => p.timestamp)
+      .reduce((acc, point) => {
+        const date = new Date(point.timestamp!);
+        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        const monthName = date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+        
+        const existing = acc.find(item => item.month === monthName);
+        if (existing) {
+          existing.count += 1;
+        } else {
+          acc.push({ month: monthName, count: 1 });
+        }
+        return acc;
+      }, [] as TimeStats[])
+      .sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime());
 
-  // Most visited places
-  const mostVisited = dataPoints
-    .filter(p => p.visitCount && p.visitCount > 1)
-    .sort((a, b) => (b.visitCount || 0) - (a.visitCount || 0))
-    .slice(0, 5);
+    const mostVisited = dataPoints
+      .filter(p => p.visitCount && p.visitCount > 1)
+      .sort((a, b) => (b.visitCount || 0) - (a.visitCount || 0))
+      .slice(0, 5);
 
-  // Recent visits (last 30 days)
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  const recentVisits = dataPoints.filter(p => {
-    if (!p.lastVisit) return false;
-    const lastVisitDate = new Date(p.lastVisit);
-    return lastVisitDate >= thirtyDaysAgo;
-  }).length;
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const recentVisits = dataPoints.filter(p => {
+      if (!p.lastVisit) return false;
+      const lastVisitDate = new Date(p.lastVisit);
+      return lastVisitDate >= thirtyDaysAgo;
+    }).length;
+
+    return { totalPoints, totalVisits, uniqueCategories, averageVisitsPerPoint, categoryStats, timeStats, mostVisited, recentVisits };
+  }, [dataPoints]);
 
   if (!isOpen) {
     return (
       <button
         onClick={onToggle}
-        className="fixed top-20 left-4 z-[1001] bg-white p-3 rounded-lg shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+        className="fixed top-20 right-4 z-[1001] bg-white p-3 rounded-lg shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors"
         title="Open Statistics"
       >
         <BarChart3 className="h-5 w-5 text-gray-600" />
@@ -91,7 +90,7 @@ const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({
   }
 
   return (
-    <div className="fixed top-20 left-4 z-[1001] bg-white rounded-lg shadow-lg border border-gray-200 w-96 max-h-[calc(100vh-120px)] overflow-y-auto">
+    <div className="fixed top-20 right-4 z-[1001] bg-white rounded-lg shadow-lg border border-gray-200 w-96 max-h-[calc(100vh-120px)] overflow-y-auto">
       <div className="p-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
