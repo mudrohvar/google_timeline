@@ -6,6 +6,8 @@ interface StatisticsDashboardProps {
   dataPoints: DataPoint[];
   isOpen: boolean;
   onToggle: () => void;
+  onMonthSelect: (month: string | null) => void;
+  selectedMonth: string | null;
 }
 
 interface CategoryStats {
@@ -22,7 +24,9 @@ interface TimeStats {
 const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({
   dataPoints,
   isOpen,
-  onToggle
+  onToggle,
+  onMonthSelect,
+  selectedMonth
 }) => {
   if (dataPoints.length === 0) {
     return null;
@@ -184,9 +188,21 @@ const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({
             <h4 className="text-sm font-medium text-gray-900 mb-3">Visits Over Time</h4>
             <div className="space-y-2">
               {timeStats.map((stat) => (
-                <div key={stat.month} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                  <span className="text-sm text-gray-700">{stat.month}</span>
-                  <span className="text-sm font-medium text-gray-900">{stat.count} visits</span>
+                <div 
+                  key={stat.month} 
+                  className={`flex items-center justify-between p-2 rounded cursor-pointer transition-colors ${
+                    selectedMonth === stat.month 
+                      ? 'bg-blue-100 border-l-4 border-blue-500'
+                      : 'bg-gray-50 hover:bg-gray-100'
+                  }`}
+                  onClick={() => onMonthSelect(selectedMonth === stat.month ? null : stat.month)}
+                >
+                  <span className={`text-sm font-medium ${
+                    selectedMonth === stat.month ? 'text-blue-800' : 'text-gray-700'
+                  }`}>{stat.month}</span>
+                  <span className={`text-sm font-bold ${
+                    selectedMonth === stat.month ? 'text-blue-800' : 'text-gray-900'
+                  }`}>{stat.count} visits</span>
                 </div>
               ))}
             </div>

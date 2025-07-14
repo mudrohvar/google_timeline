@@ -8,6 +8,7 @@ export interface DataPoint {
   title: string;
   description?: string;
   timestamp?: string;
+  monthYear?: string;
   category?: string;
   visitCount?: number;
   lastVisit?: string;
@@ -74,6 +75,20 @@ const DataUpload: React.FC<DataUploadProps> = ({ onDataProcessed, onClearData, h
     }
   };
 
+  const enrichData = (points: DataPoint[]): DataPoint[] => {
+    return points.map(point => {
+      if (point.timestamp) {
+        try {
+          const date = new Date(point.timestamp);
+          if (!isNaN(date.getTime())) {
+            return { ...point, monthYear: date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) };
+          }
+        } catch (e) { /* ignore invalid dates */ }
+      }
+      return point;
+    });
+  };
+
   const processCSV = async (file: File) => {
     const text = await file.text();
     const lines = text.split('\n');
@@ -123,8 +138,9 @@ const DataUpload: React.FC<DataUploadProps> = ({ onDataProcessed, onClearData, h
       throw new Error('No valid data points found in CSV file');
     }
 
-    setProcessedData(data);
-    onDataProcessed(data);
+    const enrichedData = enrichData(data);
+    setProcessedData(enrichedData);
+    onDataProcessed(enrichedData);
     setUploadStatus('success');
   };
 
@@ -235,19 +251,20 @@ const DataUpload: React.FC<DataUploadProps> = ({ onDataProcessed, onClearData, h
     }
 
     // Filter out invalid coordinates
-    data = data.filter(point => 
+    const validData = data.filter(point => 
       !isNaN(point.latitude) && 
       !isNaN(point.longitude) &&
       point.latitude >= -90 && point.latitude <= 90 &&
       point.longitude >= -180 && point.longitude <= 180
     );
 
-    if (data.length === 0) {
+    if (validData.length === 0) {
       throw new Error('No valid data points found in JSON file');
     }
 
-    setProcessedData(data);
-    onDataProcessed(data);
+    const enrichedData = enrichData(validData);
+    setProcessedData(enrichedData);
+    onDataProcessed(enrichedData);
     setUploadStatus('success');
   };
 
